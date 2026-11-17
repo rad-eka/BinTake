@@ -161,15 +161,41 @@ if (yearEl) yearEl.textContent = new Date().getFullYear();
 // service's own #book form, prefilled, via sessionStorage.
 // Service pages: name + phone + address -> this IS the booking step, so a
 // valid submit shows an inline confirmation instead of navigating away.
+//
+// Type of waste (#wasteType): on the homepage it only appears, and is only
+// required, when "Doorstep Waste Collection" is selected. On the waste
+// collection service page the field is always visible and required.
 const BOOKING_STORAGE_KEY = 'binTakerBooking';
+const WASTE_SERVICE_URL = 'services/waste-collection.html';
+const WASTE_LABELS = {
+  'wet': 'Wet waste',
+  'dry': 'Dry waste',
+  'e-waste': 'E-waste',
+  'mixed': 'Mixed waste'
+};
 const bookForm = document.getElementById('bookForm');
 if (bookForm) {
   const nameInput = document.getElementById('bookName');
   const phoneInput = document.getElementById('bookPhone');
   const addressInput = document.getElementById('bookAddress');
   const serviceSelect = document.getElementById('serviceSelect'); // homepage only
+  const wasteField = document.getElementById('wasteTypeField');
+  const wasteSelect = document.getElementById('wasteType');
   const errorEl = document.getElementById('bookFormError');
   const successEl = document.getElementById('bookSuccess');
+
+  // Homepage: show the waste type field only for Doorstep Waste Collection.
+  const syncWasteField = () => {
+    if (!serviceSelect || !wasteField || !wasteSelect) return;
+    const show = serviceSelect.value === WASTE_SERVICE_URL;
+    wasteField.style.display = show ? '' : 'none';
+    wasteSelect.required = show;
+    if (!show) wasteSelect.selectedIndex = 0;
+  };
+  if (serviceSelect) {
+    serviceSelect.addEventListener('change', syncWasteField);
+    syncWasteField();
+  }
 
   // Prefill from a previous step (e.g. after choosing a service on the homepage)
   try {
@@ -178,6 +204,7 @@ if (bookForm) {
       if (nameInput && saved.name) nameInput.value = saved.name;
       if (phoneInput && saved.phone) phoneInput.value = saved.phone;
       if (addressInput && saved.address) addressInput.value = saved.address;
+      if (wasteSelect && !serviceSelect && saved.wasteType) wasteSelect.value = saved.wasteType;
     }
   } catch (err) {
     // Ignore unreadable/corrupt storage and just start with a blank form.
@@ -196,8 +223,16 @@ if (bookForm) {
     const details = {
       name: nameInput ? nameInput.value.trim() : '',
       phone: phoneInput ? phoneInput.value.trim() : '',
-      address: addressInput ? addressInput.value.trim() : ''
+      address: addressInput ? addressInput.value.trim() : '',
+      wasteType: ''
     };
+
+    // Only keep a waste type when it applies (visible on the homepage for the
+    // waste service, or always present on the waste collection page).
+    if (wasteSelect && wasteSelect.value) {
+      const applies = serviceSelect ? serviceSelect.value === WASTE_SERVICE_URL : true;
+      if (applies) details.wasteType = wasteSelect.value;
+    }
 
     if (serviceSelect) {
       // Homepage form: stash the details and jump to that service's booking form.
@@ -211,8 +246,10 @@ if (bookForm) {
     if (successEl) {
       const nameSpan = document.getElementById('bookSuccessName');
       const phoneSpan = document.getElementById('bookSuccessPhone');
+      const wasteSpan = document.getElementById('bookSuccessWaste');
       if (nameSpan) nameSpan.textContent = details.name;
       if (phoneSpan) phoneSpan.textContent = details.phone;
+      if (wasteSpan) wasteSpan.textContent = WASTE_LABELS[details.wasteType] || '';
       bookForm.hidden = true;
       successEl.hidden = false;
       successEl.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
