@@ -206,14 +206,24 @@
             <label for="bookAddress">Address</label>
             <textarea id="bookAddress" name="address" rows="2" placeholder="House / flat no., street, area" required autocomplete="street-address"></textarea>
           </div>
+          <div class="book-form__field book-form__field--full" id="wasteTypeField">
+            <label for="wasteType">Type of waste</label>
+            <select id="wasteType" name="wasteType" required>
+              <option value="" disabled selected>Select type of waste</option>
+              <option value="wet">Wet waste</option>
+              <option value="dry">Dry waste</option>
+              <option value="e-waste">E-waste</option>
+              <option value="mixed">Mixed waste</option>
+            </select>
+          </div>
         </div>
         <button type="submit" class="btn btn--primary btn--lg btn--block">Book a pickup</button>
-        <p class="book-form__error" id="bookFormError" role="alert" hidden>Please add your name, a 10-digit phone number, and your address.</p>
+        <p class="book-form__error" id="bookFormError" role="alert" hidden>Please add your name, a 10-digit phone number, your address, and the type of waste.</p>
       </form>
       <div class="book-success" id="bookSuccess" hidden>
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6"/><path d="M8 12.5l2.5 2.5L16 9.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <h3>Thanks, <span id="bookSuccessName"></span>!</h3>
-        <p>We've noted your Doorstep Waste Collection request. Our team will call <span id="bookSuccessPhone"></span> shortly to confirm a pickup schedule.</p>
+        <p>We've noted your Doorstep Waste Collection request for <strong id="bookSuccessWaste"></strong>. Our team will call <span id="bookSuccessPhone"></span> shortly to confirm a pickup schedule.</p>
       </div>
       <div class="cta__actions" style="margin-top:24px;">
         <a href="../index.html#services" class="btn btn--ghost btn--lg">Back to all services</a>
